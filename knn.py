@@ -23,14 +23,6 @@ def pdist2(x, y):
     return torch.pow(x - y, 2).sum(2)
 
 
-def plot(x, y, ran):
-    for i in range(ran):
-        if model.predict((x[i], y[i])) == 1:
-            plt.scatter(x[i], y[i], marker='o', c="green")
-        else:
-            plt.scatter(x[i], y[i], marker='o', c="blue")
-
-
 train = pd.read_csv('dados-ex1-1.csv')
 train_tensor = torch.tensor(train.values)
 data_x = train_tensor[:, :2]
@@ -54,32 +46,29 @@ class KNN:
         knns = self.targets[idxs]  # seleciona os rotulos dos vizinhos
         return knns.mode(dim=1).values  # retorna os valores da moda nos K vizinhos
 
+def teste(zx, zy, k, pos):
+    model = KNN(k, data_x, data_y)  # usando K=5
 
-model = KNN(10, data_x, data_y)  # usando K=5
+    zx = zx.reshape(zx.shape[0] * zx.shape[1])
+    zy = zy.reshape(zy.shape[0] * zy.shape[1])
+
+    ax = np.array(zx)
+    ay = np.array(zy)
+    xy = (ax, ay)
+
+    zz = torch.tensor(xy)
+    zz = torch.t(zz)
+
+    plt.subplot(2, 2, pos)
+    plt.title('Para k = ' + str(k))
+    plt.scatter(zz[:, 0], zz[:, 1], c=model.predict(zz), cmap=cmap_light)
+    plt.scatter(data_x[:, 0], data_x[:, 1], c=model.predict(data_x), marker="x", cmap=cmap_bold, linewidths=0.01)
+
 
 zx, zy = torch.meshgrid((torch.arange(-1, 1.7, 0.01)), torch.arange(-1, 1.7, 0.01))
+teste(zx, zy, 1, 1)
+teste(zx, zy, 3, 2)
+teste(zx, zy, 9, 3)
+teste(zx, zy, 27, 4)
 
-zx = zx.reshape(zx.shape[0] * zx.shape[1])
-zy = zy.reshape(zy.shape[0] * zy.shape[1])
-
-ax = np.array(zx)
-ay = np.array(zy)
-xy = (ax, ay)
-
-zz = torch.tensor(xy)
-zz = torch.t(zz)
-plt.subplot(221)
-plt.title('teste')
-plt.scatter(zz[:, 0], zz[:, 1], c=model.predict(zz), cmap=cmap_light)
-plt.scatter(data_x[:, 0], data_x[:, 1], c=model.predict(data_x), marker="x", cmap=cmap_bold, linewidths=0.01)
-
-plt.subplot(222)
-plt.scatter(zz[:, 0], zz[:, 1], c=model.predict(zz), cmap=cmap_light)
-plt.scatter(data_x[:, 0], data_x[:, 1], c=model.predict(data_x), marker="x", cmap=cmap_bold, linewidths=0.01)
-
-plt.subplot(223)
-plt.scatter(zz[:, 0], zz[:, 1], c=model.predict(zz), cmap=cmap_light)
-plt.scatter(data_x[:, 0], data_x[:, 1], c=model.predict(data_x), marker="x", cmap=cmap_bold, linewidths=0.01)
 plt.show()
-
-
