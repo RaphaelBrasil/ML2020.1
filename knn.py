@@ -62,7 +62,7 @@ def teste(zx, zy, k, pos):
     plt.subplot(2, 2, pos)
     plt.title('Para k = ' + str(k))
     plt.scatter(zz[:, 0], zz[:, 1], c=model.predict(zz), cmap=cmap_light)
-    plt.scatter(data_x[:, 0], data_x[:, 1], c=model.predict(data_x), marker="x", cmap=cmap_bold, linewidths=0.01)
+    plt.scatter(data_x[:, 0], data_x[:, 1], c=data_y, marker="x", cmap=cmap_bold, linewidths=0.01)
 
 
 zx, zy = torch.meshgrid((torch.arange(-1, 1.7, 0.01)), torch.arange(-1, 1.7, 0.01))
