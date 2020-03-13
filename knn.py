@@ -9,10 +9,18 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.metrics import mean_squared_error
 
 # Create color maps
 cmap_light = ListedColormap(['#b3c5ec', '#ebecb3'])
 cmap_bold = ListedColormap(['#1568db', '#ffce3c'])
+
+
+def funct(x):
+    y = torch.pow((2 * x), 2) * torch.sin(15 * x)
+    return y
+
 
 def pdist2(x, y):
     n = x.size(0)
@@ -46,7 +54,14 @@ class KNN:
         knns = self.targets[idxs]  # seleciona os rotulos dos vizinhos
         return knns.mode(dim=1).values  # retorna os valores da moda nos K vizinhos
 
-def teste(zx, zy, k, pos):
+    def predict2(self, x):
+        dists = torch.dist(x, self.data)  # computa dist. ponto a ponto
+        idxs = dists.argsort()[:, :self.K]  # orderna e separa os indices dos k mais proximos
+        knns = x[idxs]
+        return torch.mean(knns[:, 0]), torch.mean(knns[0, :])  # retorna os valores da médias dos K vizinhos
+
+
+def teste1(zx, zy, k, pos):
     model = KNN(k, data_x, data_y)  # usando K=5
 
     zx = zx.reshape(zx.shape[0] * zx.shape[1])
@@ -65,10 +80,29 @@ def teste(zx, zy, k, pos):
     plt.scatter(data_x[:, 0], data_x[:, 1], c=data_y, marker="x", cmap=cmap_bold, linewidths=0.01)
 
 
+#For Classification
 zx, zy = torch.meshgrid((torch.arange(-1, 1.7, 0.01)), torch.arange(-1, 1.7, 0.01))
-teste(zx, zy, 1, 1)
-teste(zx, zy, 3, 2)
-teste(zx, zy, 9, 3)
-teste(zx, zy, 27, 4)
+teste1(zx, zy, 1, 1)
+teste1(zx, zy, 3, 2)
+teste1(zx, zy, 9, 3)
+teste1(zx, zy, 27, 4)
+plt.show()
+
+# For Regression
+xTeste = torch.linspace(-1, 1, steps=1000).reshape(-1, 1)
+
+
+for k in (1, 3, 5):
+    for s in (5, 10, 100):
+
+        x = torch.linspace(-1, 1, steps=s).reshape(-1, 1)
+        model = KNeighborsRegressor(n_neighbors=k)
+        model.fit(x, funct(x))
+
+
+        #plt.scatter(xTeste, model.predict(xTeste), cmap=cmap_light)
+
+        print('The MSE for k = ' + str(k) + ' and trainSet = ' + str(s) + ' is: '
+              + str(mean_squared_error(funct(xTeste), model.predict(xTeste))))
 
 plt.show()
