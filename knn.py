@@ -90,7 +90,7 @@ plt.show()
 
 # For Regression
 xTeste = torch.linspace(-1, 1, steps=1000).reshape(-1, 1)
-
+pos = 1
 
 for k in (1, 3, 5):
     for s in (5, 10, 100):
@@ -99,8 +99,11 @@ for k in (1, 3, 5):
         model = KNeighborsRegressor(n_neighbors=k)
         model.fit(x, funct(x))
 
-
-        #plt.scatter(xTeste, model.predict(xTeste), cmap=cmap_light)
+        if k == 3:
+            plt.subplot(2, 2, pos)
+            plt.title('Para k = ' + str(k) + ' e trainSet = ' + str(s))
+            plt.scatter(xTeste, model.predict(xTeste), cmap=cmap_light)
+            pos = pos + 1
 
         print('The MSE for k = ' + str(k) + ' and trainSet = ' + str(s) + ' is: '
               + str(mean_squared_error(funct(xTeste), model.predict(xTeste))))
